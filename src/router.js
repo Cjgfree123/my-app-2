@@ -1,10 +1,7 @@
 import React from 'react';
 import { Router, Route, Switch } from 'dva/router';
 import App from './routes/App.js';
-
-function Home() {
-  return <h1>Hello 主页!</h1>;
-};
+import Home from './routes/Home/index.js';
 
 function Product({match}) {
   if(match.path === "/product/saleIn"){

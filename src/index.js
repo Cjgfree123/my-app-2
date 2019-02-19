@@ -1,4 +1,5 @@
 import dva from 'dva';
+import user from './models/user';
 import './index.css';
 
 // 1. Initialize
@@ -9,6 +10,7 @@ const app = dva();
 
 // 3. Model
 // app.model(require('./models/example').default);
+app.model(user);
 
 // 4. Router
 app.router(require('./router').default);
