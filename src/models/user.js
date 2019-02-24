@@ -1,4 +1,5 @@
-import { getUserNameReq } from '../services/getUser';
+import delay from 'dva/saga';
+import { getUserNameReq, getTableListReq } from '../services/getUser';
 
 export default {
 
@@ -6,6 +7,7 @@ export default {
 
     state: {
         name: '',
+        tableData: [],
     },
 
     subscriptions: {
@@ -20,7 +22,12 @@ export default {
         *getUserName({ payload }, { call, put }) {
             let userData = yield getUserNameReq(payload);
             yield put({ type: 'setName', payload: userData })
-        }
+        },
+        *getTableList({ payload }, { call, put }) {
+            yield call(delay, 5000);
+            let tableData = yield getTableListReq(payload);
+            yield put({ type: 'setTable', payload: tableData })
+        },
     },
 
     reducers: {
@@ -32,6 +39,18 @@ export default {
             return {
                 ...state,
                 name
+            };
+        },
+        updateName(state, action) {
+            return {
+                ...state,
+                name: action.payload,
+            };
+        },
+        setTable(state, action) {
+            return {
+                ...state,
+                tableData: action.payload,
             };
         },
     },

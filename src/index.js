@@ -1,9 +1,11 @@
 import dva from 'dva';
+import createLoading from 'dva-loading';
 import user from './models/user';
 import './index.css';
 
 // 1. Initialize
 const app = dva();
+app.use(createLoading());
 
 // 2. Plugins
 // app.use({});
