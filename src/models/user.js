@@ -8,6 +8,8 @@ export default {
     state: {
         name: '',
         tableData: [],
+        page: 1,
+        size: 2,
     },
 
     subscriptions: {
@@ -23,10 +25,17 @@ export default {
             let userData = yield getUserNameReq(payload);
             yield put({ type: 'setName', payload: userData })
         },
-        *getTableList({ payload }, { call, put }) {
+        *getTableList({ payload }, { call, put, select }) {
             yield call(delay, 5000);
-            let tableData = yield getTableListReq(payload);
-            yield put({ type: 'setTable', payload: tableData })
+            const page = yield select(state => state.user.page);
+            const size = yield select(state => state.user.size);
+            console.log("第几页",page);
+            console.log("一页几条",size);
+            let tableData = yield getTableListReq({
+                page,
+                size,
+            });
+            yield put({ type: 'setTable', payload: tableData });
         },
     },
 
@@ -51,6 +60,13 @@ export default {
             return {
                 ...state,
                 tableData: action.payload,
+            };
+        },
+        setPage(state, action) {
+            return {
+                ...state,
+                page: action.payload.page,
+                size: action.payload.size,
             };
         },
     },
