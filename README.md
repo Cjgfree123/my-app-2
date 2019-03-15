@@ -30,5 +30,16 @@ const app = dva({
 <ConnectedRouter history={history}></ConnectedRouter>
 ```
 
+## 遇到问题
 
+1.post请求，显示找不到 option http://localhost:8016/add ?
+
+```
+"proxy":{
+    "/":{
+        "target":"http://localhost:8016/",
+        "changeOrigin":true
+    }
+}
+```
 

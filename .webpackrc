@@ -2,5 +2,11 @@
     "extraBabelPlugins": [
         ["import", { "libraryName": "antd", "style": "true" }]
     ],
-    "disableCSSModules":true
+    "disableCSSModules":true,
+    "proxy":{
+        "/":{
+            "target":"http://localhost:8016/",
+            "changeOrigin":true
+        }
+    }
 }

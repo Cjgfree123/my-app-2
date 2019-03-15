@@ -1,4 +1,5 @@
-import fetch from 'dva/fetch';
+// import fetch from 'dva/fetch';
+import axios from 'axios';
 
 function parseJSON(response) {
   return response.json();
@@ -38,14 +39,8 @@ export function get(url) {
     .then(data => data);
 };
 
-export function post(url,data) {
-  return fetch(url, {
-    mode: 'cors',
-    data
-  })
-    .then(checkStatus)
-    .then(parseJSON)
-    .then(data => data);
+export function post(url, data) {
+  return axios.post(url,data);
 }
 
-export default { get,post };
+export default { get, post };

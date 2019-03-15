@@ -19,7 +19,8 @@ class HomeConfig extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            visible: false
+            visible: false,
+            selectedRowKeys: [],
         };
         this.type = 0;// 0 新增    1 编辑
         this.record = {};
@@ -38,7 +39,28 @@ class HomeConfig extends Component {
         this.props.form.validateFieldsAndScroll((err, values) => {
             if (!err) {
                 console.log('Received values of form: ', values);
+                if (this.type === 0) {
+                    this.props.dispatch({
+                        type: 'user/addUser',
+                        payload: values,
+                    });
+                };
+                if (this.type === 1) {
+                    this.props.dispatch({
+                        type: 'user/edit',
+                        payload: values,
+                    });
+                }
             }
+        });
+    }
+
+    delOne = (name) => {
+        this.props.dispatch({
+            type: 'user/delOne',
+            payload: {
+                name,
+            },
         });
     }
 
@@ -55,7 +77,7 @@ class HomeConfig extends Component {
         let { dispatch } = this.props;
         dispatch({
             type: 'user/getTableList',
-           
+
         });
     }
 
@@ -80,21 +102,34 @@ class HomeConfig extends Component {
         });
     }
 
-    onPageChange=(page) =>{
+    onPageChange = (page) => {
         this.props.dispatch({
-            type:'user/setPage',
-            payload:{
+            type: 'user/setPage',
+            payload: {
                 page,
-                size:2,
+                size: 2,
             }
         });
         this.props.dispatch({
-            type:'user/getTableList',
+            type: 'user/getTableList',
         });
     }
 
+    delMany = () => {
+        let { selectedRowKeys: delArr } = this.state;
+        this.props.dispatch({
+            type: 'user/delMany',
+            payload: {
+                _id: delArr
+            }
+        });
+    }
+
+    onSelectChange = (selectedRowKeys) => {
+        this.setState({ selectedRowKeys });
+    };
+
     render() {
-        console.log(this)
         let that = this;
         const columns = [{
             title: '姓名',
@@ -117,18 +152,26 @@ class HomeConfig extends Component {
                         <span onClick={() => that.showModal(1, record)} className="edit-btn">
                             编辑
                         </span>
-                        <span onClick={() => that.showModal(0)} className="add-btn">
-                            新增
+                        <span onClick={() => that.delOne(record.name)} className="del-btn">
+                            删除
                         </span>
                     </div>
 
                 );
             }
         }];
-        let { user: { name, tableData }, loading } = this.props;
+        let { user: { name, tableData ,total,size}, loading,  } = this.props;
         let { type, record } = this;
         const isLoading = loading.effects['user/getTableList'];
         const { getFieldDecorator } = this.props.form;
+
+        const { selectedRowKeys } = this.state;
+        // rowSelection object indicates the need for row selection
+        const rowSelection = {
+            selectedRowKeys,
+            onChange: this.onSelectChange,
+        };
+
         return (
             <div id="home">
                 <Button onClick={this.modify}>修改名字</Button>
@@ -137,6 +180,14 @@ class HomeConfig extends Component {
                 <Button onClick={this.getTableData}>表格数据</Button>
                 <hr />
 
+                <Button onClick={() => that.showModal(0)} className="add-btn">
+                    新增
+                </Button>
+
+                <Button onClick={() => that.delMany()} className="del-many-btn">
+                    批量删除
+                </Button>
+
                 <Table
                     className="table-style"
                     dataSource={tableData}
@@ -144,9 +195,10 @@ class HomeConfig extends Component {
                     loading={isLoading}
                     rowKey={record => record._id}
                     pagination={false}
+                    rowSelection={rowSelection}
                 />
 
-                <Pagination defaultCurrent={1} total={50} onChange={this.onPageChange} className="page-style"/>
+                <Pagination defaultCurrent={1} total={total} pageSize={size} onChange={this.onPageChange} className="page-style" />
 
                 <Modal title="第一个 Modal" visible={this.state.visible}
                     onOk={this.handleSubmit} onCancel={this.handleCancel}
