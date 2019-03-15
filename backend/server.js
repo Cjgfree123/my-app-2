@@ -50,7 +50,7 @@ mongoose.connection.on('connected', (err) => {
         let req = ctx.request.query;
         let current = req.page || 1;
         let size = req.size * 1 || 2;
-        let data = await User.find()
+        let data = await User.find().sort({ '_id': -1 }) // 将新创建的头插
             .skip((current - 1) * size)
             .limit(size); // pagesize:一页几条
 
@@ -61,6 +61,54 @@ mongoose.connection.on('connected', (err) => {
             data,
         }
     });
+
+    // /remove?name=chen
+    router.post('/remove', async function (ctx, next) {
+        let postData = ctx.request.body;
+        let name = postData.name;
+        await User.remove({ 'name': name });
+        ctx.body = {
+            code: 0,
+            errmsg: '删除成功',
+        };
+    });
+
+    // /removeMany? _id=16999 
+    router.post('/removeMany', async function (ctx, next) {
+        let req = ctx.request.body;
+        let delArr = req._id || [];
+        for (let key in delArr) {
+            await User.remove({ '_id': delArr[key] });
+        };
+        ctx.body = {
+            code: 0,
+            errmsg: '删除成功',
+        };
+    });
+
+    // /add (有问题，增加的数据不正确?  解决:请求头为application/json)
+    router.post('/add', async function (ctx, next) {
+        ctx.set('Content-Type', 'application/json');
+        let postData = ctx.request.body;
+        let newData = new User(postData);
+        await newData.save();
+        ctx.body = {
+            code: 0,
+            errmsg: "添加成功",
+        };
+    });
+
+    // /edit 
+    router.post('/edit', async function (ctx, next) {
+        let postData = ctx.request.body;
+        let name = postData.name;
+        await User.update({ "name":name }, postData);
+        ctx.body = {
+            code: 0,
+            errmsg: "修改成功",
+        }
+    })
+
     app.use(router.routes())
     app.listen(8016, () => console.log("端口启动:" + `${port}`));
 
